@@ -14,17 +14,21 @@
 | `custom_TB375FC.mk` | 我们的 product 定义；`lunch custom_TB375FC-bp4a-userdebug` 的目标名来自它。与上游的 `lineage_TB375FC.mk` 并存 |
 | `custom.dependencies` | PixelOS 侧的依赖声明（LineageOS 的对应物是 `lineage.dependencies`，格式是 JSON 数组 `[{"repository","target_path"}]`；PixelOS 这份还支持 `"remote":"gitlab"`） |
 | `prebuilts/Android.bp`、`prebuilts/gen_bootanimation.sh`、`prebuilts/ba_build/`、`prebuilts/bootanimation-*.zip` | 自制开机动画的生成与安装 |
-| `proprietary-files.txt` | blob 清单（清单本身属于设备树；blob 本体不可发布） |
+| `prebuilts/{Android.bp,gen_bootanimation.sh,ba_build/,bootanimation-*.zip}` | 自制开机动画的生成与安装（已核实：上游 `prebuilts/` **没有**跟踪这些文件，跟踪的只有 `Image.gz`、`dtb/dtb.img`、`dtbo_TB375FC.img`、`dtbo_TB373FU.img`、`framework/`、`modules/system_dlkm/*.ko`） |
 
-记录中出现过的自有 commit —— SHA 与标题来自会话记录，**内容已不可取**：
+### 更正：那五个 commit 不是我们的
 
-| SHA | 标题 |
-|---|---|
-| `5a808ef` | TB375FC: Correct README specs and complete the build manifest |
-| `f2f15a` | Add TB373FU ROW variant |
-| `e0b697a` | 标题未记录 |
-| `624dfe` | 标题未记录 |
-| `aadb1c9` | 标题未记录 |
+之前这里把 `5a808ef`、`e0b697a`、`f2f15a`、`624dfe`、`aadb1c9` 记成"我们自己的 device 树
+commit，内容随树删除，只能照标题重做"。2026-09-24 把上游仓库 clone 下来核对后确认：
+**它们（连同 `1d20c9d`、`df2f15a`、`4624dfe`）就是 `LosSantosPro/android_device_lenovo_TB375FC`
+`lineage-23.2` 分支的全部历史**，作者 Jamie Macgregor，日期 2026-06-07 / 06-09 ——
+当时出现在 `git log` 顶部，只是因为我们的树正是从那个顶端长出来的。`proprietary-files.txt`
+同理，是上游的文件，不是我们写的。
+
+真正属于我们、且确实随旧树丢失的只有：上面表里的 `custom_*` 两个文件和开机动画那组，
+以及第 2 节的 12 处上游项目内改动。其中 PixelOS 产品层已按上游树 + PixelOS 公开惯例**重写**并
+发布在 `Villode/android_device_lenovo_TB375FC`（fork，保留上游 6 个 commit；GMS 继承文件名待
+本机确认，**尚未编译验证**）；开机动画那组与 12 处补丁仍未重做。
 
 ## 2. 改在上游项目里的本地改动（会被 `repo sync` 覆盖，必须手工重做）
 
