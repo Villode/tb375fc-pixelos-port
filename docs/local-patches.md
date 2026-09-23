@@ -4,8 +4,8 @@
 
 关于来源与限度，先说清三件事：
 
-1. 清单来自 2026-09-20 至 09-22 的排障记录（当时正在做 16→17 的移植）。**记录里没有逐条标注**
-   某项是 Android 16 就需要、还是只有 17 才需要。
+1. 清单来自 2026-09-20 至 09-22 的排障记录。记录里**没有逐条标注**某项是当前这套包必需的，
+   还是只在别的平台代次里才需要。
 2. 记录里也没有保留每条的**报错原文**和**为什么这样改**的理由 —— 当时这些是写在源码注释里的，
    注释随源码树一起删了。所以下表凡涉及"原因"一栏，没有记录的就标 `未记录`，不做推测。
 3. 这些改动**没有以 patch / diff 形式留存**，本表是重建线索，不是补丁。
@@ -45,9 +45,9 @@
 | `vendor/custom`（bootanimation） | 加条件判断 | 未记录 | 未记录 |
 | `packages/services/Telecomm` 的 `TelecomServiceResources` | 加 `//apex_available:platform` | 未记录 | 未记录 |
 | dexpreopt 相关 mk | `DISABLE_DEXPREOPT_CHECK := true` | 未记录 | 未记录 |
-| device 树 sepolicy 中 `/sys/class/typec` 的 `genfscon` | 注释掉 vendor 那条规则（记录注明：Android 17 平台已把该路径标为 `sysfs_typec`，两者冲突） | 平台标签冲突 | 记录发生在 17 侧；16 是否需要 **未记录** |
+| device 树 sepolicy 中 `/sys/class/typec` 的 `genfscon` | 注释掉 vendor 那条规则 | 平台侧已把该路径标为 `sysfs_typec`，与 vendor 规则冲突 | 未记录 |
 | device 树 `manifest.xml` | `<sepolicy><version>` 由 `202504` 抬到 `202604` | 未记录 | 未记录 |
-| vendor mk 里 stock product 分区的 `NOTICE.xml.gz` 拷贝规则 | 删掉该条 | 记录：17 构建会自己生成一份，重复安装导致 `build_image` 崩 | 记录发生在 17 侧；16 是否需要 **未记录** |
+| vendor mk 里 stock product 分区的 `NOTICE.xml.gz` 拷贝规则 | 删掉该条 | 平台自己会生成一份，重复安装直接把 `build_image` 崩掉 | 未记录 |
 
 ## 3. `repo sync` 与 manifest 口径（重建时重新核实）
 
@@ -69,9 +69,9 @@
   `...-kernel` → `device/lenovo/TB375FC-kernel`、
   `LosSantosPro/android_vendor_lenovo_TB375FC` → `vendor/lenovo/TB375FC`，
   固定 `lineage-23.2`。
-- ⚠️ 未核实项：当时 17 那侧记录的 manifest 口径是 `seventeen` + device 基线 `lineage-24.0`，
-  但今天核对 `PixelOS-AOSP/manifest` 的分支列表里没有 `seventeen`，`LosSantosPro` 的设备树也只有
-  `lineage-23.2`。这一条只影响已放弃的 17，重建 16 用不到，留此备忘。
+- ⚠️ 未核实项：更早的会话记录里出现过别的 manifest 分支口径，但 2026-09-23 核对
+  `PixelOS-AOSP/manifest` 的分支列表与 `LosSantosPro` 设备树的分支列表都对不上。
+  重建时按本文上面的 `lineage-23.2` 口径走，那条记录不要当依据。
 - 2026-09-23 另外核对（都返回 404，即仓库不存在）：`PixelOS-Devices/android_device_lenovo_TB375FC`、
   `LosSantosPro/platform_manifests`。也就是说 **TB375FC 不在 PixelOS 官方支持机型之列**，
   公开可得的本设备基线只有 `LosSantosPro/android_device_lenovo_TB375FC` 的 `lineage-23.2` 一支；
@@ -87,19 +87,18 @@
 | `~/sdk-prebuilt-backup/` | 被移开的 `Profiling-current`、`Telephony-current`、`UprobeStats-current`（第 2 节第 4 条） | 1.9 M |
 | `~/abidump-orphans-backup-20260922/` | 从 `prebuilts/abi-dumps/platform/36` 删掉的 4 个孤儿 ABI 转储 | 72 K |
 | `~/webapp-sdk-import.bak/` | WebApp module-SDK 的导入备份 | 164 K |
-| `~/reapply_fixes.sh` | 幂等重放当时三处修复的脚本（面向 17，未收录进本仓库） | 7 K |
-| `~/run_*.sh`、`~/verify_publish17.sh`、`~/mon_build.sh` | 17 的构建 / 校验 / 监控脚本（未收录） | — |
+| `~/reapply_fixes.sh` | 幂等重放三处构建期修复的脚本（未收录进本仓库，见第 5 节） | 7 K |
+| `~/run_*.sh`、`~/verify_publish17.sh`、`~/mon_build.sh` | 另一些构建 / 校验 / 监控脚本，与本包口径不符（未收录） | — |
 
-## 5. 附录：只服务于已放弃的 Android 17 的记录
+## 5. 附录：另外三处构建期修复
 
-以下条目在 17 移植期间得到，随 17 一起停止跟进，仅留档：
+这三条当时用 `~/reapply_fixes.sh` 幂等重放，脚本本身没有收录进本仓库，只做记录：
 
 - `build/make/tools/releasetools/build_image.py` 的 `CopyInputDirectory` 幂等化
   （`file_list.txt` 出现重复条目时 `os.link()` 抛 `FileExistsError`）。`repo sync` 会撤销。
 - 删除 `prebuilts/abi-dumps/platform/36` 下 4 个孤儿 ABI 转储（否则 `check-abi-dump-list` 失败）。
   `repo sync` 会撤销。
 - `vendor/pixel/gms` 需拉 Git LFS 对象，否则 8 个 APK 是 134 字节指针并报 "Improper zip alignment"。
-- 把 pinned 的 6.1.138 内核换成 AOSP 17 的 GKI prebuilt 6.1.159（起因是 17 用户态在旧内核上
-  `rt_mutex_adjust_prio_chain` / `_raw_spin_trylock` 处 Oops），以及为抓串口日志改
-  `BOARD_KERNEL_CMDLINE` 加 `console=` / `earlycon` 的诊断脚本。这些改动**只存在于已删除的树里**，
-  刷机包 `C:\PixelOS16` 是 16 的镜像，不含这些。
+
+另有两次内核侧尝试（换 GKI prebuilt、给 cmdline 加 `console=`/`earlycon` 抓串口日志）只存在于
+已删除的树里，本仓库发布的刷机包与之无关。
