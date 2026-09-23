@@ -43,12 +43,18 @@ m superimage
 
 `m superimage` is required: the tree leaves `BOARD_BUILD_SUPER_IMAGE_BY_DEFAULT` unset, so
 `otapackage` does not produce `super.img`. `--depth=1` on the first sync is not optional either;
-an undepthed `prebuilts/tools` fetch pulls full history.
+a sync without it pulled the full history of `prebuilts/tools` once (271 G in one directory).
 
-Our side of the port is three things: `custom_TB375FC.mk` + `custom.dependencies` (the
-`custom_` lunch target and its dependency list), a generated bootanimation installed through
-`vendor/custom`, and the patches listed in [`docs/local-patches.md`](docs/local-patches.md).
-The last group lives inside upstream projects, so every `repo sync` undoes it.
+Our own layer is in this repo under [`device/`](device/README.md) — `custom_TB375FC.mk`,
+`custom.dependencies` and an `AndroidProducts.mk` that adds the `custom_TB375FC-bp4a-*` targets.
+Copy all three into `device/lenovo/TB375FC/` after the sync (they sit alongside the upstream
+`lineage_TB375FC.mk`; the device implementation itself is upstream's). Two caveats are written in
+that README: the GMS config filename in `custom_TB375FC.mk` must be confirmed against a synced
+tree, and this layer has not been compiled yet.
+
+The remaining local work is the generated bootanimation installed through `vendor/custom`, plus
+the 12 patches listed in [`docs/local-patches.md`](docs/local-patches.md) — those live inside
+upstream projects, so every `repo sync` undoes them.
 
 ## Images
 
