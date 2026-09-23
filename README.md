@@ -40,8 +40,27 @@
   `github.com/kquieter-debug/Android_kernel_source_TB375FC`（6.1.138，vermagic 与设备树的模块集对齐）。
 - PixelOS 官方、LineageOS 官方、LosSantosPro 都不对本仓库和这套移植负责；本仓库不与它们合并，
   也不等待它们更新。
+- 2026-09-23 核对：`PixelOS-Devices` 名下**没有** `android_device_lenovo_TB375FC`（404），
+  即 TB375FC 不属于 PixelOS 官方支持机型，公开的本设备基线只有上面那一个仓库的 `lineage-23.2`。
+  本仓库里的设备参数与构建步骤均以我们自己的实测为准。
 - 同一台设备的主线内核（Linux 7.2 / MT6897）移植是完全独立的一条线：
   `Villode/tb375fc-linux`、`Villode/tb375fc-linux-utils`，与本仓库没有共同历史。
+
+## 已发布的二进制
+
+Release [`pixelos-16-20260920`](https://github.com/Villode/tb375fc-pixelos-port/releases/tag/pixelos-16-20260920)
+挂着这套 Android 16 的镜像（2026-09-20 生成、当天实测可刷入并日常使用），共 11 个附件：
+
+- `super.img.part-00` / `-01` / `-02`（1.50 G / 1.50 G / 0.83 G）—— 同一份 `super.img` 的分卷，
+  因为 GitHub 单个 Release 附件上限是 2 GiB。取回后：
+  `cat super.img.part-00 super.img.part-01 super.img.part-02 > super.img`，
+  期望 `sha256 = 8bbb445af978243c367248094a15bc3fe4eb89e847697d47ee715fa3ab3ecf5f`
+- `boot.img`、`vendor_boot.img`、`init_boot.img`、`dtbo.img`、`vbmeta.img`、
+  `vbmeta_system.img`、`vbmeta_vendor.img`
+- `SHA256SUMS.txt`
+
+`lk.img`、`DA_BR.bin`、`da.auth`、stock `userdata.img`、原厂 scatter **不在发布范围内**，
+需从自己的 stock 固件包取，理由见下一节。
 
 ## 不会（也不该）出现在这里的东西
 

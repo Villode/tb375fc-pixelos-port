@@ -72,6 +72,10 @@
 - ⚠️ 未核实项：当时 17 那侧记录的 manifest 口径是 `seventeen` + device 基线 `lineage-24.0`，
   但今天核对 `PixelOS-AOSP/manifest` 的分支列表里没有 `seventeen`，`LosSantosPro` 的设备树也只有
   `lineage-23.2`。这一条只影响已放弃的 17，重建 16 用不到，留此备忘。
+- 2026-09-23 另外核对（都返回 404，即仓库不存在）：`PixelOS-Devices/android_device_lenovo_TB375FC`、
+  `LosSantosPro/platform_manifests`。也就是说 **TB375FC 不在 PixelOS 官方支持机型之列**，
+  公开可得的本设备基线只有 `LosSantosPro/android_device_lenovo_TB375FC` 的 `lineage-23.2` 一支；
+  本仓库引用的设备型号、构建步骤均以我们自己实测为准。
 - ⚠️ WSL 里那个 `~/sync-wait.sh`（等 GitHub 恢复后自动 `repo sync`）内容已损坏：
   创建时被外层 shell 当场展开了 `$(seq 1 180)`，日志路径变成空重定向，且把
   `REPO_SYNC_RC=0` 硬编码进了日志。因此**没有收录**，需要同步脚本请重写。
